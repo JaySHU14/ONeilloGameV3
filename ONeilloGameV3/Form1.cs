@@ -4,6 +4,9 @@ using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+// using System.Speech.Synthesis;
+using System.IO; // 
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace ONeilloGameV3
 {
@@ -22,6 +25,7 @@ namespace ONeilloGameV3
             InitializeComponent();
             FormComponents();
             InitialiseBoard();
+            LoadGame();
             SetBoard();
             updateTimer = new Timer();
             updateTimer.Interval = 1000 / 60; // 60 FPS refresh rate
@@ -325,8 +329,8 @@ namespace ONeilloGameV3
         private void SwitchPlayer()
         {
             currentPlayer = OtherPlayer();
-            statusLabel1.Visible = false; // only needed for debugging to determine if it was correctly determining and switching between the current player
-            statusLabel1.Text = "Current player: " + (currentPlayer == 1 ? "Black" : "White");
+            //statusLabel1.Visible = false; // only needed for debugging to determine if it was correctly determining and switching between the current player
+            //statusLabel1.Text = "Current player: " + (currentPlayer == 1 ? "Black" : "White");
             player1PictureBox.Visible = (currentPlayer == 1); // display the picture only when it is player 1's turn
             player2PictureBox.Visible = (currentPlayer == 2); // display the picture only when it is player 2's turn
         }
@@ -338,7 +342,14 @@ namespace ONeilloGameV3
 
         private void informationPanelToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            infoPanel.Visible = informationPanelToolStripMenuItem.Checked;
+            if (informationPanelToolStripMenuItem.Checked)
+            {
+                informationPanelMenuStrip.Visible = true;
+            }
+            else
+            {
+                informationPanelMenuStrip.Visible = false;
+            }
         }
 
         private void ClearButtons()
@@ -378,6 +389,64 @@ namespace ONeilloGameV3
             UpdateBoard();
             blackCount = 2;
             whiteCount = 2;
+        }
+
+        private void saveGameTab_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Game files (*.game)|*.game|All files (*.*)|*.*";
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                string filePath = saveFileDialog.FileName;
+                FileInfo fileInfo = new FileInfo(filePath);
+
+                FileStream fileStream = fileInfo.Open(FileMode.Create, FileAccess.Write);
+
+                BinaryFormatter binaryFormatter = new BinaryFormatter();
+                binaryFormatter.Serialize(fileStream, new GameData(board, currentPlayer, blackCount, whiteCount));
+
+                fileStream.Close();
+            }
+        }
+
+        public class GameData
+        {
+            public int [,] board;
+            public int currentPlayer;
+            public int blackCount;
+            public int whiteCount;
+
+            public GameData(int[,] board, int currentPlayer, int blackCount, int whiteCount)
+            {
+                this.board = board;
+                this.currentPlayer = currentPlayer;
+                this.blackCount = blackCount;
+                this.whiteCount = whiteCount;
+            }
+        }
+
+        public void LoadGame()
+        {
+            if (File.Exists("game.game"))
+            {
+                FileStream fileStream = new FileInfo("game.game").Open(FileMode.Open, FileAccess.Read);
+
+                BinaryFormatter binaryFormatter = new BinaryFormatter();
+                GameData gameData = (GameData)binaryFormatter.Deserialize(fileStream);
+
+                board = gameData.board;
+                currentPlayer = gameData.currentPlayer;
+                blackCount = gameData.blackCount;
+                whiteCount = gameData.whiteCount;
+
+                fileStream.Close();
+            }
+            else
+            {
+                InitialiseBoard();
+                board[3, 4] = board[4, 3] = 1;
+                board[3, 3] = board[4, 4] = 2;
+            }
         }
     }
 }
