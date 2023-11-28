@@ -177,10 +177,10 @@ namespace ONeilloGameV3
                 }
             }
 
-            if (currentPlayer == 1)
+            if (currentPlayer == 1) // if current player is black...
             {
-                blackCount += newCount + 1;
-                whiteCount -= newCount;
+                blackCount += newCount + 1; // add current black count to the new count of updating
+                whiteCount -= newCount; // remove any necessary lost white counters to the new count of updating
             }
             else
             {
