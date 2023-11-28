@@ -13,7 +13,7 @@ namespace ONeilloGameV3
 {
     public partial class Form1 : Form
     {
-        private const int boardSize = 8;
+        private const int boardSize = 8; // generate a standard for the size of the board. This allows us to iterate over the actual size of the board and set a boundary for cells stored to it
         private const int cellSize = 50;
         private int[,] board = new int[boardSize, boardSize];
         private int currentPlayer = 1;
@@ -99,40 +99,40 @@ namespace ONeilloGameV3
                 }
             }
 
-            Controls.AddRange(buttons.ToArray());
+            Controls.AddRange(buttons.ToArray()); // convert every button stored to the 'buttons' list to an array to be iterated over
         }
 
-        private void CellClicked(object sender, EventArgs e)
+        private void CellClicked(object sender, EventArgs e) // event handler for when a cell is clicked
         {
-            Button button = (Button)sender;
-            int row = button.Location.Y / cellSize;
-            int col = button.Location.X / cellSize;
+            Button button = (Button)sender; // create an instance of Button to represent the input sent by the user
+            int row = button.Location.Y / cellSize; // determine a variable to represent the specific row in play
+            int col = button.Location.X / cellSize; // determine a variable to represent the specific col in play
 
-            if (ValidMove(row, col))
+            if (ValidMove(row, col)) // if the move is valid on the newly initialised row and col variables...
             {
-                MakeMove(row, col);
+                MakeMove(row, col); // make the move
 
-                UpdateBoard(); // update the board on the UI thread
+                UpdateBoard(); // update the board on the UI
 
                 if (GameOver())
                 {
-                    GameOverMessage();
+                    GameOverMessage(); // if the game is over, display the message box that declares a game over
                 }
                 else
                 {
-                    SwitchPlayer();
+                    SwitchPlayer(); // if the game is not over, switch the player 
                 }
             }
         }
 
-        private void MakeMove(int row, int col)
+        private void MakeMove(int row, int col) // declare function to make a move on the board
         {
-            int[] directionRow = { -1, -1, -1, 0, 1, 1, 1, 0 };
+            int[] directionRow = { -1, -1, -1, 0, 1, 1, 1, 0 }; // array to represent the co-ordinates of each cell to be checked upon (-1,-1 top left, -1,0 left etc.)
             int[] directionCol = { -1, 0, 1, 1, 1, 0, -1, -1 };
 
             int newCount = 0;
 
-            board[row, col] = currentPlayer;
+            board[row, col] = currentPlayer; // current cell position is equal to the player that has their turn
 
 
 
